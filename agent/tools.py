@@ -42,35 +42,41 @@ def stock_price_fetcher(ticker: str) -> dict:
 
 
 @tool
-def news_fetcher(query: str, limit: int = 3) -> list[dict]:
+def news_fetcher(ticker: str, limit: int = 5) -> list[dict]:
     """
-    Fetch recent financial news headlines and summaries for a given stock, company,
-    or market topic. Use this tool when the user asks why a stock moved, wants recent
-    news, sentiment analysis, or asks whether they should buy/sell based on news.
+    Fetch recent financial news headlines and summaries for a given stock ticker symbol
+    (e.g. AAPL, TSLA, MSFT, NVDA). Use this tool when the user asks why a stock moved,
+    wants recent news, sentiment analysis, or asks whether they should buy/sell based on news.
+    The input must be a stock ticker symbol, not a general search query.
     """
-    api_key = os.getenv("NEWS_API_KEY")
-    if not api_key:
-        return [{"error": "NEWS_API_KEY not set in environment"}]
+    import datetime
 
-    url = "https://newsapi.org/v2/everything"
+    api_key = os.getenv("FINHUB_API_KEY")
+    if not api_key:
+        return [{"error": "FINHUB_API_KEY not set in environment"}]
+
+    to_date = datetime.date.today().isoformat()
+    from_date = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+
+    url = "https://finnhub.io/api/v1/company-news"
     params = {
-        "q": query,
-        "language": "en",
-        "sortBy": "publishedAt",
-        "pageSize": limit,
-        "apiKey": api_key,
+        "symbol": ticker.upper(),
+        "from": from_date,
+        "to": to_date,
+        "token": api_key,
     }
 
     try:
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
-        articles = response.json().get("articles", [])
+        articles = response.json()
         return [
             {
-                "title": a.get("title"),
-                "source": a.get("source", {}).get("name"),
-                "published_at": a.get("publishedAt"),
-                "summary": a.get("description"),
+                "title": a.get("headline"),
+                "source": a.get("source"),
+                "published_at": datetime.datetime.fromtimestamp(a.get("datetime", 0)).isoformat(),
+                "summary": a.get("summary"),
+                "sentiment": a.get("sentiment"),
                 "url": a.get("url"),
             }
             for a in articles[:limit]

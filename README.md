@@ -144,15 +144,15 @@ LANGCHAIN_TRACING_V2=true
 LANGCHAIN_PROJECT=stock-market-agent
 LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
 
-# News API (https://newsapi.org — free tier)
-NEWS_API_KEY=...
+# Finnhub (https://finnhub.io — free tier, any email)
+FINHUB_API_KEY=...
 ```
 
 | Key | Where to get it |
 |-----|----------------|
 | `OPENAI_API_KEY` | https://platform.openai.com |
 | `LANGCHAIN_API_KEY` | https://smith.langchain.com → Settings → API Keys |
-| `NEWS_API_KEY` | https://newsapi.org (free tier, 100 req/day) |
+| `FINHUB_API_KEY` | https://finnhub.io (free tier, 60 calls/min, any email) |
 
 ### 5. Run the app
 
@@ -225,7 +225,7 @@ results = run_full_eval()
 | Agent framework | LangGraph |
 | Tracing & evals | LangSmith |
 | Stock data | yfinance (free, no API key) |
-| News data | NewsAPI (free tier) |
+| News data | Finnhub (free tier, ticker-specific news) |
 | UI | Streamlit |
 | Environment | python-dotenv |
 
